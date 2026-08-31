@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CompTIA CySA+ (CS0-004) Exam Simulator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .log-terminal { background-color: #1e1e1e; color: #00ff00; font-family: 'Courier New', Courier, monospace; }
+        /* Custom Scrollbar for better aesthetics */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
+        .hidden-view { display: none !important; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased h-screen flex flex-col overflow-hidden">
+
+    <header class="bg-blue-900 text-white shadow-md z-10 flex-shrink-0">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <i class="fa-solid fa-shield-halved text-2xl text-blue-300"></i>
+                <div>
+                    <h1 class="text-xl font-bold leading-tight">CySA+ (CS0-004) Simulator</h1>
+                    <p class="text-xs text-blue-200">Capital Prep / Dion Training Aligned</p>
+                </div>
+            </div>
+            <div id="header-timer-container" class="hidden-view flex items-center bg-blue-800 px-4 py-2 rounded-lg border border-blue-700">
+                <i class="fa-regular fa-clock mr-2 text-blue-300"></i>
+                <span id="header-time-left" class="font-mono text-xl font-semibold">03:00:00</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow overflow-y-auto relative">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 h-full">
+
+            <!-- VIEW 1: Welcome & Setup Screen -->
+            <div id="welcome-view" class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 md:p-12 text-center max-w-3xl mx-auto mt-10">
+                <div class="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fa-solid fa-laptop-code text-4xl text-blue-600"></i>
+                </div>
+                <h2 class="text-3xl font-bold text-slate-900 mb-4">CompTIA CySA+ Certification Simulator</h2>
+                <p class="text-slate-600 mb-8 text-lg">
+                    This simulator mimics the real CS0-004 exam environment. It includes a mix of standard multiple-choice, scenario-based, and performance-based questions (PBQs).
+                </p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 text-left">
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                        <i class="fa-solid fa-list-check text-blue-500 mb-2 text-xl"></i>
+                        <h3 class="font-semibold text-slate-800">Exam Domains</h3>
+                        <p class="text-sm text-slate-500 mt-1">Covers SecOps, Vuln Mgmt, Incident Response, & Reporting.</p>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                        <i class="fa-solid fa-stopwatch text-blue-500 mb-2 text-xl"></i>
+                        <h3 class="font-semibold text-slate-800">3-Hour Timer</h3>
+                        <p class="text-sm text-slate-500 mt-1">Strict countdown timer mirroring the actual 165-minute test.</p>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100">
+                        <i class="fa-solid fa-chart-pie text-blue-500 mb-2 text-xl"></i>
+                        <h3 class="font-semibold text-slate-800">Detailed Report</h3>
+                        <p class="text-sm text-slate-500 mt-1">Get targeted study recommendations based on your performance.</p>
+                    </div>
+                </div>
+
+                <button id="start-exam-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-10 rounded-xl shadow-lg hover:shadow-xl transition duration-200 text-lg w-full md:w-auto">
+                    Start Exam Simulation
+                </button>
+            </div>
+
+            <!-- VIEW 2: Active Exam Screen -->
+            <div id="exam-view" class="hidden-view h-full flex flex-col">
+                <!-- Progress and controls -->
+                <div class="flex justify-between items-center mb-6 pb-4 border-b border-slate-200 flex-shrink-0">
+                    <div>
+                        <span class="text-sm font-semibold text-slate-500 uppercase tracking-wider">Question <span id="current-q-num">1</span> of <span id="total-q-num">20</span></span>
+                        <div class="mt-2 w-48 h-2 bg-slate-200 rounded-full overflow-hidden">
+                            <div id="progress-bar" class="h-full bg-blue-500 transition-all duration-300" style="width: 5%"></div>
+                        </div>
+                    </div>
+                    <button id="mark-review-btn" class="flex items-center text-amber-600 hover:text-amber-700 font-medium bg-amber-50 px-4 py-2 rounded-lg border border-amber-200 transition">
+                        <i class="fa-regular fa-flag mr-2"></i> Mark for Review
+                    </button>
+                </div>
+
+                <div class="flex-grow overflow-y-auto pr-2 pb-20" id="question-scroll-area">
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 md:p-8">
+                        
+                        <!-- Domain Tag -->
+                        <div class="mb-4 inline-block px-3 py-1 bg-blue-100 text-blue-800 text-xs font-bold rounded-full" id="q-domain-tag">
+                            Domain 1.0 Security Operations
+                        </div>
+
+                        <!-- Question Text -->
+                        <h3 class="text-xl md:text-2xl font-semibold text-slate-900 mb-6 leading-relaxed" id="q-text">
+                            Loading question...
+                        </h3>
+
+                        <!-- Optional Log/Scenario Box (For PBQs) -->
+                        <div id="q-scenario-box" class="hidden-view mb-6 p-4 rounded-lg log-terminal text-sm overflow-x-auto shadow-inner">
+                            <!-- Scenario text gets injected here -->
+                        </div>
+
+                        <!-- Options -->
+                        <div class="space-y-3" id="q-options">
+                            <!-- Options injected dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bottom Navigation Bar -->
+                <div class="fixed bottom-0 left-0 w-full bg-white border-t border-slate-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] p-4 z-20">
+                    <div class="max-w-5xl mx-auto flex justify-between items-center">
+                        <button id="prev-btn" class="px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed">
+                            <i class="fa-solid fa-arrow-left mr-2"></i> Previous
+                        </button>
+                        
+                        <button id="review-screen-btn" class="px-4 py-2 text-blue-600 hover:text-blue-800 font-medium hidden md:block">
+                            View Question Grid
+                        </button>
+
+                        <button id="next-btn" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg shadow-md transition disabled:opacity-50 disabled:cursor-not-allowed">
+                            Next <i class="fa-solid fa-arrow-right ml-2"></i>
+                        </button>
+                        
+                        <button id="submit-exam-btn" class="hidden-view px-8 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-lg shadow-md transition">
+                            Submit Exam
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW 3: Results & Report Screen -->
+            <div id="results-view" class="hidden-view pb-20">
+                
+                <!-- Score Overview Header -->
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 text-center mb-8 relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 to-indigo-600"></div>
+                    <h2 class="text-3xl font-bold text-slate-900 mb-2">Exam Simulation Complete</h2>
+                    <p class="text-slate-500 mb-8">Here is your detailed performance report.</p>
+                    
+                    <div class="flex flex-col md:flex-row justify-center items-center space-y-6 md:space-y-0 md:space-x-12">
+                        <div class="relative">
+                            <!-- Circular Progress -->
+                            <svg class="w-40 h-40 transform -rotate-90">
+                                <circle cx="80" cy="80" r="70" stroke="currentColor" stroke-width="12" fill="transparent" class="text-slate-100" />
+                                <circle id="score-circle" cx="80" cy="80" r="70" stroke="currentColor" stroke-width="12" fill="transparent" stroke-dasharray="440" stroke-dashoffset="440" class="text-blue-600 transition-all duration-1000 ease-out" />
+                            </svg>
+                            <div class="absolute inset-0 flex flex-col items-center justify-center">
+                                <span id="score-percentage" class="text-4xl font-bold text-slate-800">0%</span>
+                                <span class="text-xs text-slate-500 uppercase font-semibold">Score</span>
+                            </div>
+                        </div>
+                        
+                        <div class="text-left space-y-4">
+                            <div class="flex items-center">
+                                <div class="w-12 h-12 rounded-lg bg-green-100 flex items-center justify-center text-green-600 mr-4">
+                                    <i class="fa-solid fa-check text-xl"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-slate-500 font-medium">Correct Answers</p>
+                                    <p id="correct-count" class="text-2xl font-bold text-slate-800">0</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center">
+                                <div class="w-12 h-12 rounded-lg bg-red-100 flex items-center justify-center text-red-600 mr-4">
+                                    <i class="fa-solid fa-xmark text-xl"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-slate-500 font-medium">Incorrect Answers</p>
+                                    <p id="incorrect-count" class="text-2xl font-bold text-slate-800">0</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="pass-fail-banner" class="mt-8 p-4 rounded-xl font-bold text-lg">
+                        <!-- Injected via JS -->
+                    </div>
+                </div>
+
+                <!-- Domain Breakdown -->
+                <h3 class="text-2xl font-bold text-slate-800 mb-4">Domain Breakdown</h3>
+                <div id="domain-breakdown-container" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10">
+                    <!-- Injected via JS -->
+                </div>
+
+                <!-- Detailed Review -->
+                <h3 class="text-2xl font-bold text-slate-800 mb-4">Detailed Question Review</h3>
+                <div class="flex space-x-2 mb-4">
+                    <button id="filter-all-btn" class="px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium">All</button>
+                    <button id="filter-incorrect-btn" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-md text-sm font-medium">Incorrect Only</button>
+                </div>
+                
+                <div id="detailed-review-container" class="space-y-6">
+                    <!-- Injected via JS -->
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Custom Modal Overlay (Hidden by default) -->
+    <div id="custom-modal" class="hidden-view fixed inset-0 bg-slate-900 bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 transform transition-all">
+            <h3 id="modal-title" class="text-xl font-bold text-slate-900 mb-2">Modal Title</h3>
+            <p id="modal-msg" class="text-slate-600 mb-6">Modal message goes here.</p>
+            <div class="flex justify-end space-x-3">
+                <button id="modal-cancel-btn" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium rounded-lg">Cancel</button>
+                <button id="modal-confirm-btn" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Question Grid Modal (For quickly jumping between questions) -->
+    <div id="grid-modal" class="hidden-view fixed inset-0 bg-slate-900 bg-opacity-50 z-40 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl max-w-3xl w-full p-6 max-h-[80vh] flex flex-col">
+            <div class="flex justify-between items-center mb-4 border-b pb-2">
+                <h3 class="text-xl font-bold text-slate-900">Exam Navigator</h3>
+                <button id="close-grid-btn" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-2xl"></i></button>
+            </div>
+            <div class="flex items-center space-x-4 mb-4 text-sm text-slate-600">
+                <span class="flex items-center"><div class="w-3 h-3 bg-blue-600 rounded-full mr-2"></div> Answered</span>
+                <span class="flex items-center"><div class="w-3 h-3 border-2 border-slate-300 rounded-full mr-2"></div> Unanswered</span>
+                <span class="flex items-center"><div class="w-3 h-3 bg-amber-500 rounded-full mr-2"></div> Marked for Review</span>
+            </div>
+            <div id="question-grid-container" class="grid grid-cols-5 sm:grid-cols-8 md:grid-cols-10 gap-2 overflow-y-auto p-2">
+                <!-- Injected via JS -->
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        /**
+         * CySA+ (CS0-004) Exam Database
+         * Extracted directly from official CompTIA objectives, Capital Prep notes, and Dion Training notes.
+         * NOTE: 20 high-fidelity questions are provided here representing all domains. 
+         * To scale to 400, simply append more objects to this array following the same JSON structure.
+         */
+        const examDatabase = [
+            // Domain 1: Security Operations
+            {
+                id: 1,
+                domain: "1.0 Security Operations",
+                type: "scenario",
+                question: "Given a scenario: An analyst is reviewing SIEM alerts and notices an 'Impossible Travel' alert for a user account. The user logged in from New York, USA, and 15 minutes later, a successful login occurred from London, UK. What is the most common source of false positives for this specific type of alert, and what should the analyst do first?",
+                options: [
+                    "Compromised Active Directory Federation Services; immediately disable the account.",
+                    "A business email compromise (BEC); immediately initiate the incident response playbook.",
+                    "Consumer or corporate VPN usage; verify the IP reputation and ASN of the London IP to rule out a VPN provider.",
+                    "A brute force password spray attack; check the authentication logs for Event ID 4625."
+                ],
+                answer: 2, // Index 2 (C)
+                explanation: "According to the course notes on Identity-Based Threats, impossible travel occurs when authentications happen from geographically distant locations too quickly. However, the most common false positive is VPN usage (including consumer VPNs, Tor, or cloud proxies). The first step is investigation (IP reputation and ASN lookup) to rule out a VPN before disabling the account.",
+                reviewArea: "Section 16: Impossible Travel Detection"
+            },
+            {
+                id: 2,
+                domain: "1.0 Security Operations",
+                type: "pbq",
+                question: "Review the following Windows Event Log sequence found on an internal workstation during a threat hunt:\n\nTime: 02:14:10 | Event ID: 4624 | Logon Type: 3 | Source IP: 10.0.5.55\nTime: 02:14:15 | Event ID: 4688 | Process: cmd.exe | Parent: services.exe\nTime: 02:14:18 | Event ID: 4688 | Command Line: net user attacker /add\nTime: 02:14:20 | Event ID: 4732 | Member added to local Administrators\n\nWhat phase of the MITRE ATT&CK lifecycle does this sequence primarily represent, and what technique is being utilized?",
+                scenario: "[LOG TERMINAL]\nC:\\Windows\\System32> Event Viewer Extract...\nEvent[0]: ID 4624 (Logon Success) Type: 3\nEvent[1]: ID 4688 (Process Creation) Parent: services.exe, Image: cmd.exe\nEvent[2]: ID 4688 (Process Creation) Command: net user attacker Password123! /add\nEvent[3]: ID 4732 (Security Group Management) Group: Administrators",
+                options: [
+                    "Exfiltration; the attacker is staging data using native Windows tools.",
+                    "Lateral Movement and Privilege Escalation; the attacker authenticated over the network and created a local admin account.",
+                    "Command and Control; the attacker is using cmd.exe to beacon to 10.0.5.55.",
+                    "Reconnaissance; the attacker is enumerating local groups using the net command."
+                ],
+                answer: 1,
+                explanation: "Event ID 4624 Type 3 indicates a network logon (Lateral Movement). Spawning cmd.exe and running 'net user /add' followed by Event ID 4732 (adding to local Administrators) is a clear indicator of Privilege Escalation and Persistence via local account creation. The attacker moved laterally from 10.0.5.55 and escalated privileges.",
+                reviewArea: "Section 13: Host-Based Threat Detection (Event IDs) & Section 14"
+            },
+            {
+                id: 3,
+                domain: "1.0 Security Operations",
+                type: "mcq",
+                question: "An analyst is reviewing a Wireshark PCAP and notices a high volume of DNS queries querying extremely long, random-looking subdomains (e.g., a8f93j20dk.b392jd.malicious-domain.com). Which of the following attack techniques is most likely occurring?",
+                options: [
+                    "DNS Cache Poisoning",
+                    "Domain Generation Algorithm (DGA) for C2",
+                    "DNS Tunneling for data exfiltration or C2",
+                    "DNS Amplification DDoS Attack"
+                ],
+                answer: 2,
+                explanation: "DNS Tunneling uses long, encoded, high-entropy subdomain strings to bypass firewall rules and exfiltrate data or receive Command and Control (C2) instructions. (Cheat Sheet: 'DNS tunneling tells: Base64 subdomains, newly-registered domains, long/random subdomain strings').",
+                reviewArea: "Section 12: Network-Related IoCs & Cheat Sheet"
+            },
+            {
+                id: 4,
+                domain: "1.0 Security Operations",
+                type: "mcq",
+                question: "Which of the following tools is an open-source User and Entity Behavior Analytics (UEBA) platform explicitly mentioned in the CS0-004 objectives that baselines normal user behavior to detect insider threats without requiring a commercial SIEM?",
+                options: [
+                    "OpenCTI",
+                    "MISP",
+                    "OpenUBA",
+                    "Zeek"
+                ],
+                answer: 2,
+                explanation: "OpenUBA is the open-source UEBA platform explicitly named in the CS0-004 objectives (OBJ 1.3). It baselines user behavior to detect insider threats. OpenCTI and MISP are Threat Intelligence Platforms (TIPs), and Zeek is a network security monitor.",
+                reviewArea: "Section 18: OpenUBA Platform"
+            },
+            {
+                id: 5,
+                domain: "1.0 Security Operations",
+                type: "scenario",
+                question: "Given a scenario: You observe `certutil.exe` making outbound HTTP connections and writing an executable to `C:\\Windows\\Temp`. What type of threat activity does this represent?",
+                options: [
+                    "A normal Windows certificate update process.",
+                    "A Living Off the Land Binary (LOLBin) being abused to download a malicious payload.",
+                    "A supply chain attack compromising the Windows update infrastructure.",
+                    "A fileless malware attack executing entirely in memory."
+                ],
+                answer: 1,
+                explanation: "certutil.exe is a legitimate OS tool (LOLBin). When abused by attackers (e.g., using -urlcache -split -f), it can download remote files. Saving an executable to the Temp directory is a classic malware staging indicator.",
+                reviewArea: "Section 13: Living Off the Land Binaries (LOLBins)"
+            },
+            // Domain 2: Vulnerability Management
+            {
+                id: 6,
+                domain: "2.0 Vulnerability Management",
+                type: "scenario",
+                question: "You are prioritizing a list of vulnerabilities. Vulnerability A has a CVSS v3.1 Base Score of 9.8 but affects an isolated, air-gapped test server. Vulnerability B has a CVSS v3.1 Base Score of 6.5, affects an internet-facing production web server, and has a high EPSS score (0.85). Which should be remediated first and why?",
+                options: [
+                    "Vulnerability A, because a CVSS of 9.8 is Critical and must always be patched before Medium severity vulnerabilities.",
+                    "Vulnerability A, because air-gapped systems are harder to patch and require immediate attention.",
+                    "Vulnerability B, because it is internet-facing, holds business value, and has a high probability of exploitation in the wild (EPSS).",
+                    "Both should be patched simultaneously according to strict SLA guidelines."
+                ],
+                answer: 2,
+                explanation: "Vulnerability prioritization requires business context, not just CVSS. Vulnerability B is internet-facing and has a high EPSS (Exploitability Prediction Scoring System) score, meaning it is highly likely to be exploited. Vulnerability A is on an isolated test server. (Cheat Sheet: 'Prioritization rule: the highest CVSS is the DECOY answer').",
+                reviewArea: "Section 33: Vulnerability Prioritization and Scoring"
+            },
+            {
+                id: 7,
+                domain: "2.0 Vulnerability Management",
+                type: "mcq",
+                question: "An organization relies heavily on a legacy SCADA system to control a water treatment facility. The system cannot be patched. Which of the following scanning methodologies is the SAFEST to use on this system to identify vulnerabilities without causing a denial of service?",
+                options: [
+                    "Active credentialed scanning",
+                    "Passive network scanning",
+                    "Agent-based dynamic scanning",
+                    "External non-credentialed scanning"
+                ],
+                answer: 1,
+                explanation: "Active scanning can crash fragile PLCs and SCADA systems. Passive scanning captures and analyzes existing network traffic without sending any active probes, making it the safest methodology for OT/ICS/SCADA environments.",
+                reviewArea: "Section 28: Passive vs. Active Scanning (OBJ 2.1)"
+            },
+            {
+                id: 8,
+                domain: "2.0 Vulnerability Management",
+                type: "mcq",
+                question: "A developer is writing code for a new web application. Which of the following secure coding best practices is the definitive defense against SQL injection attacks?",
+                options: [
+                    "Input validation",
+                    "Output encoding",
+                    "Parameterized queries (prepared statements)",
+                    "Session management"
+                ],
+                answer: 2,
+                explanation: "While input validation is a defense-in-depth layer, parameterized queries (prepared statements) are the definitive defense against SQL injection because they separate the query structure from the user input. Output encoding defends against XSS.",
+                reviewArea: "Section 34: Secure Coding Best Practices"
+            },
+            {
+                id: 9,
+                domain: "2.0 Vulnerability Management",
+                type: "mcq",
+                question: "Which web application assessment tool functions as a free, open-source intercepting proxy and includes components like a Spider, Active Scanner, and Fuzzer?",
+                options: [
+                    "Nessus",
+                    "Nikto",
+                    "OWASP ZAP",
+                    "Trivy"
+                ],
+                answer: 2,
+                explanation: "OWASP ZAP (Zed Attack Proxy) is the free, open-source intercepting proxy and web application scanner. Nessus is an infrastructure scanner. Nikto is a command-line web server scanner (no proxy). Trivy is for containers and IaC.",
+                reviewArea: "Section 30: Zed Attack Proxy (ZAP)"
+            },
+            {
+                id: 10,
+                domain: "2.0 Vulnerability Management",
+                type: "pbq",
+                question: "During a vulnerability management cycle, you receive a report showing a critical vulnerability in a proprietary application. The vendor states they will not release a patch for 6 months. What is the most appropriate formal process to handle this?",
+                scenario: "Context: The application is critical for daily operations and cannot be taken offline.",
+                options: [
+                    "Accept the risk indefinitely since no patch exists.",
+                    "Implement a compensating control (e.g., WAF, segmentation) and document a formal risk exception with an expiration date.",
+                    "Apply a generic Microsoft Windows patch and hope it resolves the underlying dependency.",
+                    "Shut down the server to ensure compliance with the 30-day critical patching SLA."
+                ],
+                answer: 1,
+                explanation: "When a patch is unavailable for a critical system, you cannot simply accept the risk without controls, nor can you shut down a critical business process recklessly. The correct process is to implement compensating controls (like network isolation or a WAF) and document a formal exception with a specific expiration date/review cycle.",
+                reviewArea: "Section 34: Exception Handling and Compensating Controls"
+            },
+            // Domain 3: Incident Response and Management
+            {
+                id: 11,
+                domain: "3.0 Incident Response",
+                type: "mcq",
+                question: "According to the NIST SP 800-61 incident response lifecycle, which of the following is the CORRECT order of phases?",
+                options: [
+                    "Preparation -> Detection & Analysis -> Containment, Eradication & Recovery -> Post-Incident Activity",
+                    "Preparation -> Containment -> Detection -> Eradication -> Recovery -> Post-Incident Activity",
+                    "Detection & Analysis -> Preparation -> Containment -> Eradication -> Post-Incident Activity",
+                    "Preparation -> Containment, Eradication & Recovery -> Detection & Analysis -> Post-Incident Activity"
+                ],
+                answer: 0,
+                explanation: "The NIST SP 800-61 4 phases are: 1. Preparation; 2. Detection & Analysis; 3. Containment, Eradication & Recovery; 4. Post-Incident Activity. (Mnemonic: Please Don't Clean Poorly).",
+                reviewArea: "Section 39: Incident Response Lifecycle Overview"
+            },
+            {
+                id: 12,
+                domain: "3.0 Incident Response",
+                type: "mcq",
+                question: "An analyst detects active ransomware encrypting files on a user's workstation. According to incident response best practices, what should the analyst do FIRST?",
+                options: [
+                    "Eradicate the malware using the EDR platform.",
+                    "Re-image the machine to restore operations.",
+                    "Contain the workstation by isolating it from the network.",
+                    "Perform a root cause analysis to see how the malware arrived."
+                ],
+                answer: 2,
+                explanation: "The classic trap on the exam. The FIRST action upon detecting an active threat like malware/ransomware is CONTAINMENT (isolate the host from the network) to stop the spread. Eradication and recovery happen only after containment.",
+                reviewArea: "Section 41: Containment Strategy Selection"
+            },
+            {
+                id: 13,
+                domain: "3.0 Incident Response",
+                type: "mcq",
+                question: "According to RFC 3227, which of the following represents the correct Order of Volatility when collecting digital evidence?",
+                options: [
+                    "Hard Disk -> RAM -> CPU Registers -> Remote Logs",
+                    "RAM -> CPU Registers -> Swap File -> Hard Disk",
+                    "CPU Registers/Cache -> RAM -> Swap/Pagefile -> Hard Disk -> Remote Logs",
+                    "Remote Logs -> Hard Disk -> RAM -> CPU Registers"
+                ],
+                answer: 2,
+                explanation: "The Order of Volatility requires collecting the most volatile data first. The correct order is CPU Registers/Cache -> RAM -> Swap/Pagefile -> Disk -> Remote logs -> Physical printouts. (Mnemonic: Really Reckless Students Drink Lots).",
+                reviewArea: "Section 40: Evidence Acquisition and Chain of Custody"
+            },
+            {
+                id: 14,
+                domain: "3.0 Incident Response",
+                type: "mcq",
+                question: "Which attack methodology framework focuses specifically on attributing an intrusion across four vertices: Adversary, Capability, Infrastructure, and Victim?",
+                options: [
+                    "Cyber Kill Chain",
+                    "MITRE ATT&CK",
+                    "STRIDE",
+                    "Diamond Model of Intrusion Analysis"
+                ],
+                answer: 3,
+                explanation: "The Diamond Model models intrusion events through the relationships between four corners: Adversary, Capability, Infrastructure, and Victim. It is highly useful for threat attribution and pivoting.",
+                reviewArea: "Section 38: Diamond Model of Intrusion Analysis"
+            },
+            {
+                id: 15,
+                domain: "3.0 Incident Response",
+                type: "mcq",
+                question: "A security team wants to simulate a full, multi-stage adversary campaign against their network to test their blue team's detection capabilities. Which Breach and Attack Simulation (BAS) tool is explicitly designed for multi-stage adversary emulation?",
+                options: [
+                    "Atomic Red Team",
+                    "Caldera",
+                    "Nessus",
+                    "Trivy"
+                ],
+                answer: 1,
+                explanation: "Caldera is an open-source adversary emulation platform built by MITRE that simulates complete multi-stage adversary operations. Atomic Red Team tests individual techniques in isolation.",
+                reviewArea: "Section 32: Caldera Adversary Emulation Platform"
+            },
+            // Domain 4: Reporting and Communication
+            {
+                id: 16,
+                domain: "4.0 Reporting and Communication",
+                type: "mcq",
+                question: "You are preparing a post-incident executive summary for the Board of Directors regarding a recent data breach. Which of the following should be the PRIMARY focus of the report?",
+                options: [
+                    "A list of all compromised IP addresses and malware hashes.",
+                    "A detailed timeline of the SIEM correlation rules that fired.",
+                    "The business impact, operational trends, and resources needed for future prevention.",
+                    "The exact CVSS v3.1 vectors of the exploited vulnerabilities."
+                ],
+                answer: 2,
+                explanation: "Audience rule: match depth and language to the reader. Executives require business impact, trends, and resource needs. Technical IoCs and CVSS vectors should be kept in the technical reports, not the executive summary.",
+                reviewArea: "Section 42: Executive Summary Development"
+            },
+            {
+                id: 17,
+                domain: "4.0 Reporting and Communication",
+                type: "mcq",
+                question: "Which key performance indicator (KPI) measures the total time it takes for a security team to return an affected system to normal production after an incident is detected?",
+                options: [
+                    "MTTD (Mean Time To Detect)",
+                    "MTTR (Mean Time To Respond/Recover)",
+                    "MTBF (Mean Time Between Failures)",
+                    "MTTA (Mean Time To Acknowledge)"
+                ],
+                answer: 1,
+                explanation: "MTTR (Mean Time to Respond/Recover/Remediate depending on context) measures the time from detection/failure to full repair and restoration of production.",
+                reviewArea: "Section 43: Mean Time Metrics"
+            },
+            {
+                id: 18,
+                domain: "4.0 Reporting and Communication",
+                type: "scenario",
+                question: "During a major security incident involving a compromised corporate email server, the incident response team needs to coordinate containment strategies. Which communication method represents the best operational security (OpSec) practice?",
+                options: [
+                    "Send an urgent email to the IT distribution list.",
+                    "Use the corporate Microsoft Teams or Slack channels to create an incident war room.",
+                    "Use an out-of-band, encrypted communication channel (e.g., Signal or a separate secure tenant).",
+                    "Draft the containment plan in a shared corporate Google Doc."
+                ],
+                answer: 2,
+                explanation: "Operational security during an active incident requires using out-of-band communication channels. If the corporate network or email is compromised, the attacker could be monitoring internal Teams/Slack/Email channels to evade containment.",
+                reviewArea: "Section 42: Operational Security in Incident Communications"
+            },
+            {
+                id: 19,
+                domain: "4.0 Reporting and Communication",
+                type: "mcq",
+                question: "A vulnerability scan reveals a critical vulnerability on a proprietary software appliance. The IT operations team states they cannot apply a patch because doing so would void the vendor warranty. What type of remediation inhibitor does this represent?",
+                options: [
+                    "Business process interruption",
+                    "Contractual agreements",
+                    "Degrading functionality",
+                    "Organizational governance"
+                ],
+                answer: 1,
+                explanation: "Warranties, SLAs, and MOUs are examples of contractual agreements that can inhibit immediate remediation. The security team must work with the vendor or apply compensating controls instead of voiding the contract.",
+                reviewArea: "Section 37: Inhibitors to Remediation"
+            },
+            {
+                id: 20,
+                domain: "4.0 Reporting and Communication",
+                type: "mcq",
+                question: "A security analyst is tracking metrics to demonstrate the effectiveness of a new automated SOAR playbook designed to handle phishing reports. Which metric will most directly show the improvement provided by the SOAR?",
+                options: [
+                    "Phishing campaign click rate",
+                    "Decrease in Mean Time to Detect (MTTD)",
+                    "Decrease in Mean Time to Respond (MTTR)",
+                    "Increase in True Positive rate"
+                ],
+                answer: 2,
+                explanation: "SOAR (Security Orchestration, Automation, and Response) primarily automates the response side of security operations. By automating the triage and initial response steps, the Mean Time to Respond (MTTR) will significantly decrease.",
+                reviewArea: "Section 43: Security Operations Metrics Overview"
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let userAnswers = new Array(examDatabase.length).fill(null);
+        let markedForReview = new Array(examDatabase.length).fill(false);
+        let timerInterval;
+        let timeLeft = 10800; // 3 hours in seconds
+        let isExamActive = false;
+
+        // DOM Elements
+        const welcomeView = document.getElementById('welcome-view');
+        const examView = document.getElementById('exam-view');
+        const resultsView = document.getElementById('results-view');
+        const headerTimerContainer = document.getElementById('header-timer-container');
+        const headerTimeLeft = document.getElementById('header-time-left');
+        
+        const qDomainTag = document.getElementById('q-domain-tag');
+        const qText = document.getElementById('q-text');
+        const qScenarioBox = document.getElementById('q-scenario-box');
+        const qOptions = document.getElementById('q-options');
+        const currentQNum = document.getElementById('current-q-num');
+        const totalQNum = document.getElementById('total-q-num');
+        const progressBar = document.getElementById('progress-bar');
+        
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const submitBtn = document.getElementById('submit-exam-btn');
+        const markReviewBtn = document.getElementById('mark-review-btn');
+        const reviewScreenBtn = document.getElementById('review-screen-btn');
+
+        // Modal Elements
+        const customModal = document.getElementById('custom-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalMsg = document.getElementById('modal-msg');
+        const modalCancelBtn = document.getElementById('modal-cancel-btn');
+        const modalConfirmBtn = document.getElementById('modal-confirm-btn');
+        let modalConfirmAction = null;
+
+        const gridModal = document.getElementById('grid-modal');
+        const questionGridContainer = document.getElementById('question-grid-container');
+        const closeGridBtn = document.getElementById('close-grid-btn');
+
+        document.getElementById('start-exam-btn').addEventListener('click', startExam);
+        prevBtn.addEventListener('click', () => navigateQuestion(-1));
+        nextBtn.addEventListener('click', () => navigateQuestion(1));
+        markReviewBtn.addEventListener('click', toggleMarkReview);
+        reviewScreenBtn.addEventListener('click', openGridModal);
+        closeGridBtn.addEventListener('click', () => gridModal.classList.add('hidden-view'));
+        
+        submitBtn.addEventListener('click', () => {
+            let unanswered = userAnswers.filter(a => a === null).length;
+            let msg = unanswered > 0 
+                ? `You have ${unanswered} unanswered questions. Are you sure you want to submit the exam?` 
+                : `Are you sure you want to submit your exam for grading?`;
+            
+            showModal('Confirm Submission', msg, () => {
+                endExam();
+            });
+        });
+
+        modalCancelBtn.addEventListener('click', () => customModal.classList.add('hidden-view'));
+        modalConfirmBtn.addEventListener('click', () => {
+            customModal.classList.add('hidden-view');
+            if (modalConfirmAction) modalConfirmAction();
+        });
+
+        function startExam() {
+            welcomeView.classList.add('hidden-view');
+            examView.classList.remove('hidden-view');
+            headerTimerContainer.classList.remove('hidden-view');
+            totalQNum.textContent = examDatabase.length;
+            isExamActive = true;
+            
+            // Start Timer
+            updateTimerDisplay();
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateTimerDisplay();
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    showModal('Time is up!', 'Your 3 hours have expired. The exam will now be submitted.', () => {
+                        endExam();
+                    });
+                    // Force submit if they try to cancel the time up modal
+                    setTimeout(() => { if(isExamActive) endExam(); }, 5000); 
+                }
+            }, 1000);
+
+            loadQuestion(0);
+        }
+
+        function updateTimerDisplay() {
+            let h = Math.floor(timeLeft / 3600);
+            let m = Math.floor((timeLeft % 3600) / 60);
+            let s = timeLeft % 60;
+            headerTimeLeft.textContent = 
+                `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+            
+            if (timeLeft < 300) { // Less than 5 mins
+                headerTimeLeft.classList.add('text-red-400', 'animate-pulse');
+            }
+        }
+
+        function showModal(title, msg, confirmCallback) {
+            modalTitle.textContent = title;
+            modalMsg.textContent = msg;
+            modalConfirmAction = confirmCallback;
+            customModal.classList.remove('hidden-view');
+        }
+
+        function loadQuestion(index) {
+            currentQuestionIndex = index;
+            const q = examDatabase[index];
+            
+            currentQNum.textContent = index + 1;
+            progressBar.style.width = `${((index + 1) / examDatabase.length) * 100}%`;
+            
+            qDomainTag.textContent = q.domain;
+            qText.textContent = q.question;
+
+            if (q.scenario) {
+                qScenarioBox.classList.remove('hidden-view');
+                qScenarioBox.innerText = q.scenario;
+            } else {
+                qScenarioBox.classList.add('hidden-view');
+            }
+
+            // Render Options
+            qOptions.innerHTML = '';
+            q.options.forEach((optText, i) => {
+                const isSelected = userAnswers[index] === i;
+                const optDiv = document.createElement('div');
+                optDiv.className = `p-4 border rounded-xl cursor-pointer transition-all duration-200 flex items-center ${isSelected ? 'border-blue-500 bg-blue-50 ring-2 ring-blue-200' : 'border-slate-200 hover:border-blue-300 hover:bg-slate-50'}`;
+                optDiv.onclick = () => selectOption(i);
+                
+                const letterBox = document.createElement('div');
+                letterBox.className = `w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full font-bold text-sm mr-4 ${isSelected ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-500'}`;
+                letterBox.textContent = String.fromCharCode(65 + i); // A, B, C, D
+                
+                const textSpan = document.createElement('span');
+                textSpan.className = `text-slate-700 ${isSelected ? 'font-medium' : ''}`;
+                textSpan.textContent = optText;
+
+                optDiv.appendChild(letterBox);
+                optDiv.appendChild(textSpan);
+                qOptions.appendChild(optDiv);
+            });
+
+            // Update Navigation Buttons
+            prevBtn.disabled = index === 0;
+            
+            if (index === examDatabase.length - 1) {
+                nextBtn.classList.add('hidden-view');
+                submitBtn.classList.remove('hidden-view');
+            } else {
+                nextBtn.classList.remove('hidden-view');
+                submitBtn.classList.add('hidden-view');
+            }
+
+            // Update Mark Review Button
+            updateMarkReviewBtnUI();
+            
+            // Scroll to top of question
+            document.getElementById('question-scroll-area').scrollTop = 0;
+        }
+
+        function selectOption(optIndex) {
+            userAnswers[currentQuestionIndex] = optIndex;
+            loadQuestion(currentQuestionIndex); // re-render to show selection
+        }
+
+        function navigateQuestion(step) {
+            const newIndex = currentQuestionIndex + step;
+            if (newIndex >= 0 && newIndex < examDatabase.length) {
+                loadQuestion(newIndex);
+            }
+        }
+
+        function toggleMarkReview() {
+            markedForReview[currentQuestionIndex] = !markedForReview[currentQuestionIndex];
+            updateMarkReviewBtnUI();
+        }
+
+        function updateMarkReviewBtnUI() {
+            if (markedForReview[currentQuestionIndex]) {
+                markReviewBtn.innerHTML = '<i class="fa-solid fa-flag mr-2"></i> Unmark Review';
+                markReviewBtn.classList.add('bg-amber-500', 'text-white', 'border-amber-600');
+                markReviewBtn.classList.remove('bg-amber-50', 'text-amber-600', 'border-amber-200');
+            } else {
+                markReviewBtn.innerHTML = '<i class="fa-regular fa-flag mr-2"></i> Mark for Review';
+                markReviewBtn.classList.remove('bg-amber-500', 'text-white', 'border-amber-600');
+                markReviewBtn.classList.add('bg-amber-50', 'text-amber-600', 'border-amber-200');
+            }
+        }
+
+        function openGridModal() {
+            questionGridContainer.innerHTML = '';
+            for (let i = 0; i < examDatabase.length; i++) {
+                const btn = document.createElement('button');
+                let baseClasses = "w-10 h-10 rounded-lg font-medium text-sm flex items-center justify-center transition border ";
+                
+                if (markedForReview[i]) {
+                    baseClasses += "bg-amber-500 text-white border-amber-600";
+                } else if (userAnswers[i] !== null) {
+                    baseClasses += "bg-blue-600 text-white border-blue-700";
+                } else {
+                    baseClasses += "bg-white text-slate-600 border-slate-300 hover:bg-slate-100";
+                }
+                
+                if (i === currentQuestionIndex) {
+                    baseClasses += " ring-2 ring-offset-2 ring-blue-400";
+                }
+
+                btn.className = baseClasses;
+                btn.textContent = i + 1;
+                btn.onclick = () => {
+                    loadQuestion(i);
+                    gridModal.classList.add('hidden-view');
+                };
+                questionGridContainer.appendChild(btn);
+            }
+            gridModal.classList.remove('hidden-view');
+        }
+
+        function endExam() {
+            clearInterval(timerInterval);
+            isExamActive = false;
+            examView.classList.add('hidden-view');
+            headerTimerContainer.classList.add('hidden-view');
+            resultsView.classList.remove('hidden-view');
+            
+            generateReport();
+            window.scrollTo(0, 0);
+        }
+
+        function generateReport() {
+            let correctCount = 0;
+            let domainStats = {
+                "1.0 Security Operations": { correct: 0, total: 0 },
+                "2.0 Vulnerability Management": { correct: 0, total: 0 },
+                "3.0 Incident Response": { correct: 0, total: 0 },
+                "4.0 Reporting and Communication": { correct: 0, total: 0 }
+            };
+
+            let incorrectQuestionsHTML = '';
+            let correctQuestionsHTML = '';
+
+            examDatabase.forEach((q, idx) => {
+                const isCorrect = userAnswers[idx] === q.answer;
+                const domainKey = Object.keys(domainStats).find(k => q.domain.includes(k.substring(0,3)));
+                
+                if (domainKey) {
+                    domainStats[domainKey].total++;
+                    if (isCorrect) domainStats[domainKey].correct++;
+                }
+
+                if (isCorrect) correctCount++;
+
+                // Build detailed review blocks
+                const reviewHTML = `
+                    <div class="bg-white rounded-xl shadow-sm border ${isCorrect ? 'border-green-200' : 'border-red-200'} p-6 review-item ${isCorrect ? 'is-correct' : 'is-incorrect'}">
+                        <div class="flex items-start justify-between mb-4">
+                            <span class="inline-block px-3 py-1 bg-slate-100 text-slate-700 text-xs font-bold rounded-full">Question ${idx + 1} | ${q.domain}</span>
+                            <span class="font-bold ${isCorrect ? 'text-green-600' : 'text-red-600'}">
+                                ${isCorrect ? '<i class="fa-solid fa-check mr-1"></i> Correct' : '<i class="fa-solid fa-xmark mr-1"></i> Incorrect'}
+                            </span>
+                        </div>
+                        <p class="font-semibold text-slate-800 mb-4">${q.question}</p>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                            <div class="bg-slate-50 p-4 rounded-lg border border-slate-200">
+                                <p class="text-xs text-slate-500 uppercase font-bold mb-1">Your Answer:</p>
+                                <p class="text-sm ${isCorrect ? 'text-green-700 font-medium' : (userAnswers[idx] === null ? 'text-slate-500 italic' : 'text-red-600 font-medium')}">
+                                    ${userAnswers[idx] !== null ? q.options[userAnswers[idx]] : 'Did not answer'}
+                                </p>
+                            </div>
+                            <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+                                <p class="text-xs text-green-700 uppercase font-bold mb-1">Correct Answer:</p>
+                                <p class="text-sm text-green-800 font-medium">${q.options[q.answer]}</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg">
+                            <p class="text-sm text-blue-900"><strong class="font-bold">Explanation:</strong> ${q.explanation}</p>
+                            <p class="text-xs text-blue-700 mt-2 font-mono"><i class="fa-solid fa-book-open mr-1"></i> Study Area: ${q.reviewArea}</p>
+                        </div>
+                    </div>
+                `;
+
+                if (isCorrect) correctQuestionsHTML += reviewHTML;
+                else incorrectQuestionsHTML += reviewHTML;
+            });
+
+            // Update Score Header
+            const percentage = Math.round((correctCount / examDatabase.length) * 100);
+            document.getElementById('correct-count').textContent = correctCount;
+            document.getElementById('incorrect-count').textContent = examDatabase.length - correctCount;
+            document.getElementById('score-percentage').textContent = `${percentage}%`;
+            
+            // Animate Circle
+            const circle = document.getElementById('score-circle');
+            const circumference = 2 * Math.PI * 70; // r=70
+            const offset = circumference - (percentage / 100) * circumference;
+            setTimeout(() => { circle.style.strokeDashoffset = offset; }, 100);
+
+            // Pass/Fail Banner (CySA+ passing score is 750/900, roughly 83%)
+            const banner = document.getElementById('pass-fail-banner');
+            if (percentage >= 83) {
+                banner.className = "mt-8 p-4 rounded-xl font-bold text-lg bg-green-100 text-green-800 border border-green-300";
+                banner.innerHTML = "<i class='fa-solid fa-trophy mr-2'></i> Congratulations! You passed the simulation (Passing score is ~83%).";
+            } else {
+                banner.className = "mt-8 p-4 rounded-xl font-bold text-lg bg-red-100 text-red-800 border border-red-300";
+                banner.innerHTML = "<i class='fa-solid fa-triangle-exclamation mr-2'></i> You did not pass. Review the domains below and try again.";
+            }
+
+            // Build Domain Breakdown
+            const domainContainer = document.getElementById('domain-breakdown-container');
+            domainContainer.innerHTML = '';
+            for (const [domain, stats] of Object.entries(domainStats)) {
+                if (stats.total === 0) continue;
+                const domPercent = Math.round((stats.correct / stats.total) * 100);
+                
+                let colorClass = "bg-green-500";
+                if (domPercent < 83 && domPercent >= 70) colorClass = "bg-amber-500";
+                if (domPercent < 70) colorClass = "bg-red-500";
+
+                domainContainer.innerHTML += `
+                    <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+                        <div class="flex justify-between items-end mb-2">
+                            <h4 class="font-bold text-slate-700 text-sm w-3/4">${domain}</h4>
+                            <span class="font-mono font-bold text-lg ${colorClass.replace('bg-', 'text-')}">${domPercent}%</span>
+                        </div>
+                        <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                            <div class="h-full ${colorClass}" style="width: ${domPercent}%"></div>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-2">${stats.correct} / ${stats.total} correct</p>
+                    </div>
+                `;
+            }
+
+            // Render Detailed Review
+            const reviewContainer = document.getElementById('detailed-review-container');
+            reviewContainer.innerHTML = incorrectQuestionsHTML + correctQuestionsHTML; // Show incorrect first
+
+            // Filter logic
+            const filterAllBtn = document.getElementById('filter-all-btn');
+            const filterIncBtn = document.getElementById('filter-incorrect-btn');
+
+            filterAllBtn.onclick = () => {
+                filterAllBtn.className = "px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium";
+                filterIncBtn.className = "px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-md text-sm font-medium";
+                document.querySelectorAll('.review-item').forEach(el => el.classList.remove('hidden-view'));
+            };
+
+            filterIncBtn.onclick = () => {
+                filterIncBtn.className = "px-4 py-2 bg-blue-600 text-white rounded-md text-sm font-medium";
+                filterAllBtn.className = "px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-md text-sm font-medium";
+                document.querySelectorAll('.review-item.is-correct').forEach(el => el.classList.add('hidden-view'));
+                document.querySelectorAll('.review-item.is-incorrect').forEach(el => el.classList.remove('hidden-view'));
+            };
+        }
+
+    </script>
+</body>
+</html>
