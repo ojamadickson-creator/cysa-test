@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CySA+ CS0-004 Exam Simulator</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div id="start-screen" class="start-screen">
+  <h1>CompTIA CySA+ CS0-004 Exam Simulator</h1>
+  <p>200 realistic "Given a Scenario" questions — 190 MCQs + 10 PBQs. Timed just like the real exam.</p>
+  <div class="exam-info">
+    <h3>Exam Details</h3>
+    <ul>
+      <li><span>Total Questions</span><strong>200</strong></li>
+      <li><span>Multiple Choice</span><strong>190</strong></li>
+      <li><span>Performance-Based</span><strong>10</strong></li>
+      <li><span>Time Limit</span><strong>3 Hours</strong></li>
+      <li><span>Passing Score</span><strong>750 / 900</strong></li>
+    </ul>
+  </div>
+  <div class="exam-info">
+    <h3>Keyboard Shortcuts</h3>
+    <ul>
+      <li><span>A / B / C / D</span><strong>Select answer</strong></li>
+      <li><span>&larr; / &rarr;</span><strong>Previous / Next</strong></li>
+      <li><span>F</span><strong>Flag for review</strong></li>
+    </ul>
+  </div>
+  <button class="btn btn-success" style="font-size:1.2rem;padding:16px 48px" onclick="initExam()">Start Exam Simulator</button>
+</div>
+
+<div id="exam-screen" class="hidden">
+  <div class="exam-header">
+    <div style="flex:1">
+      <h1>CySA+ Exam Simulator</h1>
+      <div style="font-size:.85rem;color:var(--gray)" id="progress-text">1/200</div>
+      <div class="progress-bar"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    </div>
+    <div class="timer" id="timer">03:00:00</div>
+  </div>
+  <div class="container" style="display:flex;gap:24px;align-items:flex-start">
+    <div style="flex:1;min-width:0">
+      <div id="question-container" class="question-card"></div>
+      <div class="nav-buttons">
+        <button id="btn-prev" class="btn btn-secondary" onclick="prevQuestion()">Previous</button>
+        <button id="btn-flag" class="btn btn-flag" onclick="toggleFlag()">Flag for Review</button>
+        <button id="btn-next" class="btn btn-primary" onclick="nextQuestion()">Next</button>
+      </div>
+      <div style="text-align:center;margin-top:20px">
+        <button class="btn btn-danger" onclick="showSubmitModal()">Finish & Submit Exam</button>
+      </div>
+    </div>
+    <div style="width:220px;flex-shrink:0">
+      <div class="question-card" style="padding:16px">
+        <h4 style="font-size:.9rem;margin-bottom:8px">Question Navigator</h4>
+        <div style="font-size:.75rem;color:var(--gray);margin-bottom:8px">
+          <span style="display:inline-block;width:12px;height:12px;background:var(--primary);border-radius:3px;margin-right:4px"></span>Answered
+          <span style="display:inline-block;width:12px;height:12px;background:#fff8e1;border:1px solid var(--warning);border-radius:3px;margin-left:8px;margin-right:4px"></span>Flagged
+        </div>
+        <div id="question-grid" class="question-grid"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="submit-modal" class="modal-overlay">
+  <div class="modal">
+    <h2>Submit Exam?</h2>
+    <p>You have <strong id="modal-unanswered">0</strong> unanswered questions.</p>
+    <p>Once submitted, you cannot change your answers.</p>
+    <div style="display:flex;gap:12px;justify-content:center;margin-top:20px">
+      <button class="btn btn-secondary" onclick="hideSubmitModal()">Continue Exam</button>
+      <button class="btn btn-success" onclick="submitExam()">Yes, Submit</button>
+    </div>
+  </div>
+</div>
+
+<div id="report-screen" class="report-screen hidden">
+  <div class="text-center" style="padding:40px 20px">
+    <h1 style="margin-bottom:8px">Exam Report</h1>
+    <p style="color:var(--gray)">CompTIA CySA+ CS0-004 Simulation</p>
+    <div class="score-circle" id="score-circle">
+      <div class="score-value" id="score-value">0</div>
+      <div class="score-label" id="score-label">SCORE</div>
+    </div>
+    <div id="raw-score" style="font-size:1.1rem;margin-bottom:4px"></div>
+    <div id="passing-score" style="color:var(--gray);font-size:.9rem"></div>
+    <div id="performance-summary" style="max-width:700px;margin:20px auto;padding:16px;background:var(--light);border-radius:8px;font-size:.95rem"></div>
+  </div>
+  <div class="container">
+    <h2 style="margin-bottom:16px">Domain Breakdown</h2>
+    <div id="domain-breakdown" class="domain-breakdown"></div>
+    <div class="weak-areas">
+      <h3>Areas to Improve</h3>
+      <div id="weak-areas-list"></div>
+    </div>
+    <div id="review-container" class="review-section"></div>
+    <div class="text-center" style="padding:40px">
+      <button class="btn btn-primary" onclick="restartExam()">Retake Exam</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/questions.js"></script>
+<script src="js/exam.js"></script>
+</body>
+</html>
